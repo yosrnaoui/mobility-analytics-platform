@@ -21,10 +21,10 @@ FROM python:3.11-slim AS production
 
 WORKDIR /app
 
-# Dépendances système runtime uniquement
+# Dépendances système runtime uniquement (compatible Debian Trixie)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgdal32 \
-    libgeos-c1v5 \
+    libgdal-dev \
+    libgeos-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Copier les paquets Python installés depuis le builder
