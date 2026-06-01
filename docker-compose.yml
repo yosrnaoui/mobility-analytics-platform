@@ -1,0 +1,49 @@
+version: '3.9'
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Mobility Analytics Platform — Docker Compose
+#
+# Usage :
+#   Développement  →  docker compose up
+#   Production     →  docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# ══════════════════════════════════════════════════════════════════════════════
+
+services:
+
+  # ── Application Django ─────────────────────────────────────────────────────
+  web:
+    build:
+      context: .
+      target: production          # utilise le stage "production" du Dockerfile multi-stage
+    container_name: mobility_web
+    restart: unless-stopped
+    ports:
+      - "8000:8000"               # Accès : http://localhost:8000
+    environment:
+      - DJANGO_SETTINGS_MODULE=core.settings
+      - DEBUG=True                # Passer à False en production
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-prod}
+      - ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
+    volumes:
+      # Persistence des données SQLite et fichiers uploadés
+      - db_data:/app/backend/db.sqlite3
+      - media_data:/app/backend/media
+      # Hot-reload en développement : monter le code source
+      - ./backend:/app/backend
+      - ./frontend:/app/frontend
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py runserver 0.0.0.0:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/trajectories/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+# ── Volumes nommés ─────────────────────────────────────────────────────────────
+volumes:
+  db_data:
+    driver: local
+  media_data:
+    driver: local

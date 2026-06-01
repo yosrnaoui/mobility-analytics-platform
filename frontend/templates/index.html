@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mobility Analytics Platform</title>
+  {% load static %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+</head>
+<body>
+
+<!-- ── HEADER ──────────────────────────────────────────────────────────── -->
+<header class="header">
+  <div class="header-brand">
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <circle cx="14" cy="14" r="13" stroke="var(--accent)" stroke-width="2"/>
+      <path d="M8 20 L14 8 L20 20" stroke="var(--accent)" stroke-width="2" fill="none" stroke-linejoin="round"/>
+      <circle cx="14" cy="8" r="2" fill="var(--accent)"/>
+    </svg>
+    <span class="brand-name">Mobility Analytics</span>
+  </div>
+  <nav class="header-nav">
+    <a href="#upload" class="nav-link active">Charger</a>
+    <a href="#trajectories" class="nav-link">Trajectoires</a>
+    <a href="#map" class="nav-link">Carte</a>
+  </nav>
+</header>
+
+<!-- ── HERO ────────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-content">
+    <h1 class="hero-title">Analyse de<br/><span class="accent-text">Trajectoires GPS</span></h1>
+    <p class="hero-sub">Chargez vos données de mobilité — vitesse, distance, anomalies et visualisation cartographique en quelques secondes.</p>
+    <button class="btn-demo" id="loadDemoBtn">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><polygon points="4,2 14,8 4,14" fill="currentColor"/></svg>
+      Charger la démo
+    </button>
+  </div>
+  <div class="hero-stats" id="heroStats" style="display:none">
+    <div class="stat-card"><span class="stat-val" id="statDist">—</span><span class="stat-lbl">km parcourus</span></div>
+    <div class="stat-card"><span class="stat-val" id="statSpd">—</span><span class="stat-lbl">km/h moy.</span></div>
+    <div class="stat-card"><span class="stat-val" id="statAnom" style="color:var(--danger)">—</span><span class="stat-lbl">anomalies</span></div>
+    <div class="stat-card"><span class="stat-val" id="statPts">—</span><span class="stat-lbl">points GPS</span></div>
+  </div>
+</section>
+
+<!-- ── UPLOAD ───────────────────────────────────────────────────────────── -->
+<section class="section" id="upload">
+  <h2 class="section-title">Charger une trajectoire</h2>
+  <div class="upload-area" id="dropZone">
+    <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="8" y="28" width="32" height="12" rx="4" stroke="var(--muted)" stroke-width="2"/><path d="M24 8 L24 28 M16 16 L24 8 L32 16" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <p>Glissez votre fichier ici ou <label class="link-label" for="fileInput">parcourez</label></p>
+    <p class="upload-hint">Formats supportés : CSV, JSON, GeoJSON</p>
+    <input type="file" id="fileInput" accept=".csv,.json,.geojson" hidden />
+  </div>
+  <div class="upload-form" id="uploadForm" style="display:none">
+    <input type="text" id="trajName" placeholder="Nom de la trajectoire" class="form-input" />
+    <input type="text" id="trajDesc" placeholder="Description (optionnel)" class="form-input" />
+    <div class="form-actions">
+      <button class="btn-secondary" id="cancelUpload">Annuler</button>
+      <button class="btn-primary" id="submitUpload">
+        <span id="uploadBtnText">Analyser</span>
+        <span id="uploadSpinner" class="spinner" style="display:none"></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ── MAP ──────────────────────────────────────────────────────────────── -->
+<section class="section" id="map">
+  <div class="map-header">
+    <h2 class="section-title" style="margin:0">Visualisation cartographique</h2>
+    <div class="map-legend">
+      <span class="legend-dot normal"></span>Normal
+      <span class="legend-dot anomaly"></span>Anomalie
+    </div>
+  </div>
+  <div id="leafletMap"></div>
+</section>
+
+<!-- ── TRAJECTORIES LIST ────────────────────────────────────────────────── -->
+<section class="section" id="trajectories">
+  <div class="section-header">
+    <h2 class="section-title" style="margin:0">Mes trajectoires</h2>
+    <button class="btn-secondary btn-sm" id="refreshList">↻ Rafraîchir</button>
+  </div>
+  <div id="trajectoriesList"><p class="empty-state">Aucune trajectoire chargée.</p></div>
+</section>
+
+<!-- ── TOAST ────────────────────────────────────────────────────────────── -->
+<div id="toast" class="toast" aria-live="polite"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{% static 'js/app.js' %}"></script>
+</body>
+</html>
